@@ -1,0 +1,9 @@
+{
+	"cacheable": false,
+	"configurationPath": "configuration.json",
+	"cssPath": "index.css",
+	"htmlPath": "index.html",
+	"jsPath": "index.js",
+	"name": "LPP-66052 Footer (non-cacheable)",
+	"type": "component"
+}

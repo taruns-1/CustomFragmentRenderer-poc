@@ -1,0 +1,4 @@
+{
+	"description": "LPP-66052 repro: NavItem URLs leaking across virtual hosts via FragmentEntryLinkCache",
+	"name": "LPP-66052"
+}

@@ -1,0 +1,15 @@
+<div class="lpp-66052-footer" data-cacheable="true">
+	<p><strong>LPP-66052 &mdash; cacheable: true</strong></p>
+	<p>Rendered by: <code>${themeDisplay.getPortalURL()}</code> at <code>${.now?iso_utc}</code></p>
+	<p>Current URL (server side): <code>${themeDisplay.getURLCurrent()}</code></p>
+	<p>Browser URL (client side): <code class="lpp-66052-browser-url"></code></p>
+	[#if footerMenuObject?? && footerMenuObject.navItems?has_content]
+		<ul>
+			[#list footerMenuObject.navItems as navItem]
+				<li><a href="${navItem.getURL()}">${navItem.getName()}</a> <code>${navItem.getURL()}</code></li>
+			[/#list]
+		</ul>
+	[#else]
+		<p><em>No navigation menu selected (pick "Footer" in the fragment configuration).</em></p>
+	[/#if]
+</div>

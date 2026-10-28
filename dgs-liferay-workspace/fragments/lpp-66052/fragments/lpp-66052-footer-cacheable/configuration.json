@@ -1,0 +1,13 @@
+{
+	"fieldSets": [
+		{
+			"fields": [
+				{
+					"label": "Footer menu",
+					"name": "footerMenu",
+					"type": "navigationMenuSelector"
+				}
+			]
+		}
+	]
+}
