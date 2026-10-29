@@ -132,12 +132,7 @@ This change is needed even with change 3 in place:
 blade gw :modules:lpp-66052-fragment-renderer:deploy
 ```
 
-Check that the bundle started:
-
-```bash
-grep "lpp66052.fragment.renderer" bundles/logs/liferay.$(date +%F).log | tail -1
-# STARTED com.liferay.lpp66052.fragment.renderer_1.0.0
-```
+Check that the bundle started.
 
 After deploying, go to **Control Panel → Server Administration** and run **Clear content cached across the cluster**, so no HTML cached before the deploy is served.
 
