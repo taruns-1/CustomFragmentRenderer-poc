@@ -237,6 +237,26 @@ public class CustomFragmentEntryFragmentRenderer implements FragmentRenderer {
 		return fragmentEntry.isCacheable();
 	}
 
+	// LPP-66052 Customization - START
+
+	private boolean _isCacheableHost(
+		HttpServletRequest httpServletRequest,
+		String nonCacheableServerName) {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		if (themeDisplay == null) {
+			return false;
+		}
+
+		return !StringUtil.equalsIgnoreCase(
+			themeDisplay.getServerName(), nonCacheableServerName);
+	}
+
+	// LPP-66052 Customization - END
+
 	private boolean _isJavaScriptModuleEnabled(
 		HttpServletRequest httpServletRequest) {
 
@@ -405,23 +425,19 @@ public class CustomFragmentEntryFragmentRenderer implements FragmentRenderer {
 		FragmentEntryLink fragmentEntryLink = _getFragmentEntryLink(
 			fragmentRendererContext);
 
-        // LPP-66052 Customization - START
+		// LPP-66052 Customization - START
 
-        ThemeDisplay themeDisplay =
-                (ThemeDisplay)httpServletRequest.getAttribute(
-                        WebKeys.THEME_DISPLAY);
+		boolean cacheableHost = _isCacheableHost(
+			httpServletRequest, _NON_CACHEABLE_SERVER_NAME);
 
-        boolean cacheable = false;
+		boolean cacheable = false;
 
-        if ((themeDisplay != null) &&
-                !Objects.equals(
-                        themeDisplay.getPortalDomain(), "liferay.intranet")) {
+		if (cacheableHost) {
+			cacheable = _isCacheable(
+				fragmentEntryLink, fragmentRendererContext);
+		}
 
-            cacheable = _isCacheable(
-			    fragmentEntryLink, fragmentRendererContext);
-        }
-
-        // LPP-66052 Customization - END
+		// LPP-66052 Customization - END
 
 		if (cacheable) {
 			content = _fragmentEntryLinkCache.getFragmentEntryLinkContent(
@@ -490,13 +506,14 @@ public class CustomFragmentEntryFragmentRenderer implements FragmentRenderer {
 				httpServletResponse);
 		}
 
-        // LPP-66052 Customization - START
+		// LPP-66052 Customization - START
 
 		content = _renderFragmentEntry(
-			_toConfiguration(themeDisplay, fragmentEntryLink, fragmentRendererContext), css,
-			fragmentRendererContext, html, httpServletRequest, nonce);
+			_toConfiguration(
+				cacheableHost, fragmentEntryLink, fragmentRendererContext),
+			css, fragmentRendererContext, html, httpServletRequest, nonce);
 
-        // LPP-66052 Customization - END
+		// LPP-66052 Customization - END
 
 		if (!cacheable) {
 			return content;
@@ -511,11 +528,14 @@ public class CustomFragmentEntryFragmentRenderer implements FragmentRenderer {
 				httpServletRequest));
 	}
 
+	// LPP-66052 Customization - START
+
 	private String _toConfiguration(
-            ThemeDisplay themeDisplay,
-			FragmentEntryLink fragmentEntryLink,
+			boolean cacheableHost, FragmentEntryLink fragmentEntryLink,
 			FragmentRendererContext fragmentRendererContext)
 		throws JSONException {
+
+		// LPP-66052 Customization - END
 
 		String configuration = fragmentEntryLink.getConfiguration();
 
@@ -531,24 +551,15 @@ public class CustomFragmentEntryFragmentRenderer implements FragmentRenderer {
 				LocaleUtil.toLanguageId(fragmentRendererContext.getLocale()));
 		}
 
-        // LPP-66052 Customization - START
-        boolean useCache = false;
+		// LPP-66052 Customization - START
 
-        if ((themeDisplay != null) &&
-                !Objects.equals(
-                        themeDisplay.getPortalDomain(), "liferay.intranet")) {
-            useCache = true;
-        }
+		Map.Entry<Long, String> entry = null;
 
-        Map.Entry<Long, String> entry = null;
-        if (useCache) {
-            entry = _configurationPortalCache.get(key);
-        }
-//        System.out.println("Custom getPortalDomain: " + themeDisplay.getPortalDomain());
-//        System.out.println("Custom getServerName: " + themeDisplay.getServerName());
-//        System.out.println("Custom getPortalURL: " + themeDisplay.getPortalURL());
+		if (cacheableHost) {
+			entry = _configurationPortalCache.get(key);
+		}
 
-        // LPP-66052 Customization - END
+		// LPP-66052 Customization - END
 
 		if ((entry != null) &&
 			(entry.getKey() == fragmentEntryLink.getMvccVersion())) {
@@ -565,11 +576,13 @@ public class CustomFragmentEntryFragmentRenderer implements FragmentRenderer {
 		entry = new AbstractMap.SimpleImmutableEntry<>(
 			fragmentEntryLink.getMvccVersion(), jsonObject.toString());
 
-        // LPP-66052 Customization - START
-        if (useCache) {
-            _configurationPortalCache.put(key, entry);
-        }
-        // LPP-66052 Customization - END
+		// LPP-66052 Customization - START
+
+		if (cacheableHost) {
+			_configurationPortalCache.put(key, entry);
+		}
+
+		// LPP-66052 Customization - END
 
 		return entry.getValue();
 	}
@@ -592,6 +605,13 @@ public class CustomFragmentEntryFragmentRenderer implements FragmentRenderer {
 	}
 
 	private static final String _NONCE = "data-lfr-nonce";
+
+	// LPP-66052 Customization - START
+
+	private static final String _NON_CACHEABLE_SERVER_NAME =
+		"liferay.intranet";
+
+	// LPP-66052 Customization - END
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CustomFragmentEntryFragmentRenderer.class);

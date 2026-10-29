@@ -1,9 +1,0 @@
-#wrapper .lpp-66052-footer {
-	border: 2px dashed var(--gray-400);
-	margin: 1rem 0;
-	padding: 1rem;
-}
-
-#wrapper .lpp-66052-footer[data-cacheable='true'] {
-	border-color: var(--danger);
-}
